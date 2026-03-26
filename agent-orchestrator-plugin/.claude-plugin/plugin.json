@@ -1,0 +1,13 @@
+{
+  "name": "agent-orchestrator",
+  "description": "Orchestrates multi-agent workflows with automatic delegation. The Software Architect Lead discovers installed agents, drafts a plan, and coordinates handoffs — no manual copy-pasting required.",
+  "version": "0.2.0",
+  "author": {
+    "name": "Terrance Williams"
+  },
+  "license": "MIT",
+  "keywords": ["orchestration", "multi-agent", "workflow", "delegation", "agent-teams"],
+  "commands": ["./commands/"],
+  "agents": ["./agents/software-architect-lead.md"],
+  "skills": ["./skills/orchestrator/"]
+}
