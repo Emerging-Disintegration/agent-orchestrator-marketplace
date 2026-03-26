@@ -14,7 +14,7 @@ A Claude Code plugin that automates multi-agent workflows. Instead of manually c
 
 ```bash
 # 1. Add the marketplace
-/plugin marketplace add Emerging-Disintegration/agent-orchestrator
+/plugin marketplace add Emerging-Disintegration/agent-orchestrator-marketplace
 
 # 2. Install the plugin
 /plugin install agent-orchestrator@agent-orchestrator
