@@ -1,75 +1,52 @@
-# /follow-plan — Execute a Previously Written Plan
+# /follow-plan
 
-Load a saved implementation plan and execute it through the orchestrator without re-doing the planning phase.
+Use the Task tool to spawn the `software-architect-lead` subagent now. Pass the following as the complete task prompt:
 
-## Usage
+---
+The user has invoked /follow-plan with the following input: $ARGUMENTS
 
-```
-/follow-plan [path-to-plan]
-```
+First, determine what the user provided:
 
-## Examples
+## **If $ARGUMENTS looks like a file path** (starts with `.`, `/`, or ends in `.md`)
 
-```
-/follow-plan docs/plans/oauth-feature.md
-/follow-plan plans/api-refactor.md
-/follow-plan STATUS.md    # if the plan is embedded in the status file
-```
+1. Read the plan file at that path
+2. Scan installed agents at ~/.claude/agents/ and .claude/agents/ — verify every agent referenced in the plan is available
+3. If any required agents are missing, stop and tell the user exactly which agents are needed
+4. Present a summary of the phases you are about to execute, **ask if the plan should be executed on a git worktree**, then ask for confirmation
+5. If the plan includes parallel phases, **ask for explicit permission** before running them simultaneously
+6. Execute phase by phase using the Task tool to spawn each agent, passing outputs between phases
+7. Synthesize all results and present a final summary; **make sure you give the user the name of the git worktree, if one was used**.
 
-If no path is provided, the orchestrator will look for plans in common locations:
-1. `docs/plans/*.md`
-2. `.claude/plans/*.md`
-3. Prompt you to specify a path
+## **If $ARGUMENTS is empty or no path was provided**, check these locations in order
 
-## What it does
+1. docs/plans/*.md
+2. .claude/plans/*.md
+If plans are found, list them and ask the user which to run. If none are found, ask the user to *rerun* the command and provide a file path or describe what they want, give a *brief* example.
 
-1. **Reads the plan file** at the specified path
-2. **Scans installed agents** (`~/.claude/agents/` and `.claude/agents/`) to verify all agents referenced in the plan are available
-3. **Reports any missing agents** — if the plan references an agent that isn't installed, it stops and tells you what's needed
-4. **Presents a summary** of the phases it's about to execute
-5. **Asks for confirmation** before starting
-6. **Asks permission for parallel phases** — if the plan includes any parallel execution, you'll be asked to approve it explicitly
-7. **Executes** phase by phase, passing outputs between agents
-8. **Synthesizes** results and updates STATUS.md
+### After the user chooses a file, follow these steps
 
-## Plan file format
+1. Read the plan that the file path points to.
+2. Scan installed agents at ~/.claude/agents/ and .claude/agents/ - verify every agent referenced in the plan is available (filepath provided)
+3. If any required agents are missing, stop and tell the user exactly which agents are needed
+4. Present a summary of the phases you are about to execute, **ask if the plan should be executed on a seperate git worktree**, then ask for confirmation
+5. If the plan includes parallel phases, **ask for explicit permission** before running them simultaneously
+6. Execute phase by phase using the Task tool to spawn each agent, passing outputs between phases
+7. Synthesize all results and present a final summary; **make sure you give the user the name of the git worktree, if one was used**.
 
-The orchestrator expects a plan with clear phases and agent assignments. The standard format from `/orchestrate` works directly:
+## **If $ARGUMENTS is a natural language description** (not a path)
 
-```markdown
-## Implementation Plan: [Feature Name]
+Treat it as a feature request and skip the planning phase — go straight to execution:
 
-### Phase 1: [Phase Name] — [agent-filename]
-- Task: [description]
-- Output: [deliverable]
-- Dependencies: none
+1. Discover available agents by scanning ~/.claude/agents/ and .claude/agents/ — read each agent's YAML frontmatter
+2. Read STATUS.md if it exists
+3. Draft a lean implementation plan based on the description, matched to installed agents
+4. Present the plan, **ask if the plan should be executed on a seperate git worktree**, then ask for confirmation before executing
+5. If any phases are independent and could run in parallel, **ask for explicit permission first**
+6. Execute phase by phase using the Task tool to spawn each specialist agent with scoped prompts
+7. Pass each agent's output as input to the next phase
+8. Synthesize all results and present a final summary; **make sure you give the user the name of the git worktree, if one was used**.
+9. Offer to save the plan to docs/plans/ for future reuse
 
-### Phase 2: [Phase Name] — [agent-filename]
-- Task: [description]
-- Output: [deliverable]
-- Mode: parallel (pending approval)
-- Dependencies: Phase 1
+---
 
-### Phase 3: ...
-```
-
-But the orchestrator is flexible — if you wrote the plan in a different format (bullet lists, numbered steps, prose with agent names), it will interpret it reasonably. The key requirements are:
-- Clear separation of phases/steps
-- Agent names that match installed agent filenames
-- Some indication of what each phase should produce
-
-## Workflow
-
-This command is designed for two scenarios:
-
-### 1. Re-running a plan from a previous session
-You used `/orchestrate` last session, it saved the plan, and now you want to pick up where you left off or re-execute it.
-
-### 2. Running a hand-written plan
-You drafted a plan yourself (or the Software Architect drafted it and you saved it without executing). Now you want the orchestrator to execute it.
-
-## Tips
-
-- **Save plans from `/orchestrate`**: When the orchestrator drafts a plan, it offers to save it. Say yes — this builds your plan library.
-- **Edit saved plans**: Plans are just Markdown files. Adjust phases, swap agents, or remove steps before re-running.
-- **Partial execution**: If you only want to run some phases, edit the plan file to remove the phases you want to skip, or tell the orchestrator "start from Phase 3" when it asks for confirmation.
+Wait for the subagent to complete and relay its final output to the user.

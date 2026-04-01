@@ -20,6 +20,7 @@ Configure Claude Code's experimental Agent Teams feature for the current project
 ### 1. Enable the feature flag
 
 Adds to `.claude/settings.json`:
+
 ```json
 {
   "env": {
@@ -32,11 +33,13 @@ Adds to `.claude/settings.json`:
 
 Agent Teams work best with split-pane mode so you can see each teammate working.
 On Ubuntu/Debian:
+
 ```bash
 sudo apt install tmux
 ```
 
 On macOS:
+
 ```bash
 brew install tmux
 ```
@@ -44,6 +47,7 @@ brew install tmux
 ### 3. Recommended permission pre-approvals
 
 Agent Teams generate lots of permission prompts. Pre-approve common operations:
+
 - File read/write in the project directory
 - Running tests
 - Git operations
@@ -51,12 +55,14 @@ Agent Teams generate lots of permission prompts. Pre-approve common operations:
 ### 4. Usage tips
 
 After setup, start a tmux session before launching Claude Code:
+
 ```bash
 tmux new -s dev
 claude
 ```
 
 Then describe your team:
+
 ```
 Create an agent team to build [feature]:
 - Teammate 1 (Backend): Design and implement the API endpoints

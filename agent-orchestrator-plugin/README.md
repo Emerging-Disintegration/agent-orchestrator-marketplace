@@ -17,7 +17,7 @@ A Claude Code plugin that automates multi-agent workflows. Instead of manually c
 /plugin marketplace add Emerging-Disintegration/agent-orchestrator-marketplace
 
 # 2. Install the plugin
-/plugin install agent-orchestrator@agent-orchestrator
+/plugin install agent-orchestrator@agent-orchestrator-marketplace
 ```
 
 ### Local development
@@ -35,9 +35,9 @@ claude --plugin-dir /path/to/agent-orchestrator-plugin
 ## Commands
 
 | Command | What it does |
-|---|---|
-| `/orchestrate [feature]` | Plan and execute a multi-agent workflow via subagents |
-| `/follow-plan [path]` | Execute a previously saved plan without re-planning |
+| --- | --- |
+| `/orchestrate [feature]` | Plan and execute a multi-agent workflow via subagents (asks whether to run in a new Git worktree before making code changes) |
+| `/follow-plan [path or description]` | Execute a saved plan by path, pick from saved plans, or describe what you want and skip straight to execution (asks whether to run in a new Git worktree before making code changes) |
 | `/setup-teams` | Enable Agent Teams for the current project |
 | `/init-docs` | Create `docs/` folder with orchestration reference |
 
@@ -68,7 +68,9 @@ You: /orchestrate [feature description]
   ├─ Reads STATUS.md for project context
   ├─ Analyzes the feature scope
   ├─ Matches phases to installed agents
-  └─ Presents plan for your approval
+  ├─ Presents plan for your approval
+  ├─ Asks whether to execute on a separate git worktree (recommended for code changes)
+  └─ Waits for approval
          │
     [You approve]
          │
@@ -85,19 +87,20 @@ You: /orchestrate [feature description]
   Phase 3: Agent D (sequential, depends on B+C)
          │
          ▼
-  Results synthesized → STATUS.md updated
-  → Offers to save plan for /follow-plan reuse
+  Results synthesized → Offers to save plan for /follow-plan reuse
 ```
-
 ## Key Behaviors
 
 ### Dynamic agent discovery
+
 The orchestrator scans `~/.claude/agents/` and `.claude/agents/` at the start of every run. It reads each agent's YAML frontmatter to understand capabilities. No static catalog needed — it works with whatever you have installed.
 
 ### Parallel requires permission
+
 The orchestrator will **never** run phases in parallel without asking first. When it identifies independent phases, it'll present them and ask whether you want parallel (faster, more tokens) or sequential (cheaper, easier to follow).
 
 ### Plan saving and reuse
+
 After execution, the orchestrator offers to save the plan to `docs/plans/`. Saved plans can be re-executed with `/follow-plan` — no re-planning needed. Edit the Markdown to adjust before re-running.
 
 ## Agent Teams vs Subagent Orchestration
@@ -120,4 +123,3 @@ Run `/init-docs` to generate these in your project:
 ## Compatibility
 
 - Works with any agents in `~/.claude/agents/` or `.claude/agents/` — the orchestrator discovers them dynamically
-

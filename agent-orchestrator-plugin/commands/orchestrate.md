@@ -1,35 +1,22 @@
-# /orchestrate — Multi-Agent Feature Orchestration
+# /orchestrate
 
-Activate the Software Architect Lead to plan and coordinate a multi-agent workflow.
+Use the Task tool to spawn the `software-architect-lead` subagent now. Pass the following as the complete task prompt:
 
-## Usage
+---
+The user wants to orchestrate this feature: $ARGUMENTS
 
-```
-/orchestrate [feature description]
-```
+Follow your complete orchestration protocol:
 
-## What it does
+1. Discover available agents by scanning ~/.claude/agents/ and .claude/agents/ — read each agent's YAML frontmatter
+2. Read STATUS.md if it exists in the project root
+3. Draft an implementation plan with clear phases and agent assignments matched to installed agents
+4. Present the plan to the user, **ask if the plan should be executed on a git worktree**, and wait for approval before executing anything
+5. If any phases are independent and could run in parallel, **explicitly ask the user for permission first**
+6. Execute phase by phase using the Task tool to **spawn each specialist agent with scoped prompts**
+7. Pass each agent's output as input to the next phase
+8. Synthesize all results and present a final summary to the user; **make sure you give the user the name of the git worktree, if one was used**
+9. Offer to save the plan to docs/plans/ for reuse with /follow-plan
 
-1. Activates the `software-architect-lead` agent
-2. Reads STATUS.md for project context (if present)
-3. Analyzes the feature request
-4. Drafts an implementation plan with agent assignments
-5. Presents the plan for your approval
-6. On approval, delegates to specialist agents in the correct order
-7. Synthesizes results and updates STATUS.md
+---
 
-## Examples
-
-```
-/orchestrate Add user authentication with OAuth2 and session management
-/orchestrate Refactor the options pricing module to use async API calls
-/orchestrate Build a dashboard component showing portfolio Greeks in real-time
-```
-
-## How agents communicate
-
-- **Sequential tasks**: Each agent receives the previous agent's output as context
-- **Parallel tasks**: Independent agents run simultaneously, results are collected
-- **Hybrid**: Architecture/planning first, then parallel implementation, then integration
-
-The orchestrator handles all of this — you just describe what you want built.
+Wait for the subagent to complete and relay its final output to the user.

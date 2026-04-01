@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Multi-agent workflow orchestration plugin for Claude Code",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {
